@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Диагностика профессионального типа личности — тест</title>
+<style>
+  :root{
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --text:#141a22;
+    --muted:#68717f;
+    --line:#e3e7ee;
+    --accent:#2b6cf6;
+    --accent-soft:#ebf1ff;
+    --ok:#0f9d6e;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    font-size:16px;
+    line-height:1.5;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:28px 18px 80px}
+
+  /* ---------- Шапка ---------- */
+  .hero{
+    background:linear-gradient(135deg,#1b2a4a 0%,#23406f 55%,#2b6cf6 130%);
+    color:#fff;
+    border-radius:22px;
+    padding:30px 28px 26px;
+    box-shadow:0 10px 30px rgba(27,42,74,.22);
+  }
+  .badge{
+    display:inline-block;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.24);
+    padding:5px 11px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .hero h1{margin:0 0 10px;font-size:29px;line-height:1.2;letter-spacing:-.02em}
+  .hero p{margin:0;color:rgba(255,255,255,.86);font-size:15px;max-width:62ch}
+  .hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .chip{
+    font-size:13px;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  }
+
+  /* ---------- Прогресс ---------- */
+  .progressbar{
+    position:sticky;top:0;z-index:20;
+    margin:18px 0 0;
+    background:rgba(244,246,249,.88);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    padding:10px 0 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .progressbar .row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted);margin-bottom:7px}
+  .progressbar b{color:var(--text);font-variant-numeric:tabular-nums}
+  .track{height:7px;border-radius:999px;background:#e2e7ef;overflow:hidden}
+  .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#2b6cf6,#5b93ff);transition:width .25s ease}
+
+  /* ---------- Вопросы ---------- */
+  .intro{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;margin:18px 0 8px;box-shadow:var(--shadow);
+    font-size:14.5px;color:var(--muted);
+  }
+  .intro b{color:var(--text)}
+  .q{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;margin:10px 0;box-shadow:var(--shadow);
+    display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .q.answered{border-color:#cdd9f9}
+  .q.todo{border-color:#f0b3b3;box-shadow:0 0 0 3px rgba(224,72,72,.12)}
+  .qnum{
+    width:34px;height:34px;border-radius:10px;background:#f0f3f8;color:#41506b;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+    font-variant-numeric:tabular-nums;
+  }
+  .q.answered .qnum{background:var(--accent-soft);color:var(--accent)}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt{
+    display:flex;align-items:center;gap:10px;text-align:left;width:100%;
+    font:inherit;font-size:15px;color:var(--text);cursor:pointer;
+    background:#fbfcfe;border:1.5px solid var(--line);border-radius:12px;
+    padding:11px 13px;transition:all .15s ease;
+  }
+  .opt:hover{border-color:#c3d0ea;background:#f7faff}
+  .opt .tag{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    background:#eef1f7;color:#5a6780;font-size:12.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .opt.sel{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 3px rgba(43,108,246,.12)}
+  .opt.sel .tag{background:var(--accent);color:#fff}
+  .opt .txt{flex:1}
+
+  /* ---------- Кнопки ---------- */
+  .actions{
+    position:sticky;bottom:0;z-index:15;
+    margin-top:22px;padding:14px 0;
+    background:linear-gradient(180deg,rgba(244,246,249,0) 0%, rgba(244,246,249,.95) 40%);
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  }
+  .btn{
+    font:inherit;font-weight:600;font-size:15px;cursor:pointer;
+    border-radius:12px;padding:13px 22px;border:1px solid transparent;
+    transition:all .15s ease;
+  }
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(43,108,246,.28)}
+  .btn-primary:hover{background:#1f5de0}
+  .btn-primary:disabled{background:#c8d2e6;box-shadow:none;cursor:not-allowed}
+  .btn-ghost{background:#fff;color:#3c4759;border-color:var(--line)}
+  .btn-ghost:hover{border-color:#c3d0ea;background:#f7faff}
+  .hint{font-size:13.5px;color:var(--muted)}
+
+  /* ---------- Результат ---------- */
+  #result{display:none;margin-top:26px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;box-shadow:var(--shadow);margin-bottom:14px;
+  }
+  .lead-label{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .lead-title{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px;line-height:1.2}
+  .lead-sub{color:var(--muted);font-size:15px;margin:0}
+  .score-pill{
+    display:inline-block;margin-top:14px;font-size:14px;font-weight:700;
+    background:#eef4ff;color:#1f4fb8;border:1px solid #d6e2ff;border-radius:999px;padding:6px 13px;
+  }
+  .bars{margin:8px 0 0}
+  .bar-row{display:grid;grid-template-columns:210px 1fr 58px;gap:12px;align-items:center;padding:9px 0}
+  .bar-name{font-size:14.5px;color:#2a3446}
+  .bar-name .num{color:#98a2b3;font-size:12.5px;margin-right:6px}
+  .bar-track{height:12px;background:#eef1f6;border-radius:999px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:999px;width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .bar-val{text-align:right;font-weight:700;font-size:14.5px;font-variant-numeric:tabular-nums;color:#3c4759}
+  .bar-row.top .bar-name{font-weight:700;color:#141a22}
+  .h2{font-size:17px;margin:24px 0 10px;letter-spacing:-.01em}
+  .desc p{margin:0 0 10px;font-size:15px;color:#2a3446}
+  .desc .k{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px}
+  .jobs{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .job{font-size:13.5px;background:#f2f5fa;border:1px solid var(--line);border-radius:999px;padding:5px 11px;color:#3c4759}
+  .note{
+    font-size:14px;color:#5b4a17;background:#fff8e6;border:1px solid #f3e2b3;
+    border-radius:12px;padding:13px 15px;margin-top:6px;
+  }
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mini{background:#f8fafd;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:14px}
+  .mini .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+  .mini b{font-size:14.5px}
+  table.key{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  table.key th,table.key td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+  table.key th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
+  .foot{color:var(--muted);font-size:13px;text-align:center;margin-top:26px;line-height:1.6}
+
+  @media (max-width:640px){
+    .wrap{padding:16px 12px 70px}
+    .hero{padding:24px 20px;border-radius:18px}
+    .hero h1{font-size:23px}
+    .opts{grid-template-columns:1fr}
+    .bar-row{grid-template-columns:120px 1fr 44px;gap:8px}
+    .bar-name{font-size:13px}
+    .pair{grid-template-columns:1fr}
+    .q{grid-template-columns:28px 1fr;gap:9px;padding:12px}
+    .qnum{width:28px;height:28px;font-size:13px;border-radius:8px}
+    .actions{padding:12px 0}
+    .btn{width:100%;text-align:center}
+  }
+  @media print{
+    body{background:#fff}
+    .progressbar,.actions,.btn,.hero .meta{display:none !important}
+    .hero{box-shadow:none}
+    #questions,#introBlock{display:none !important}
+    #result{display:block !important}
+    .card{break-inside:avoid;box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="badge">Профориентация · 6 типов личности</div>
+    <h1>Диагностика профессионального типа личности</h1>
+    <p>В каждой паре отметьте только один вариант — тот, который вам больше нравится или кажется более интересным. Здесь нет правильных и неправильных ответов: важна первая, «честная» реакция, а не «престижность» профессии.</p>
+    <div class="meta">
+      <span class="chip">42 пары</span>
+      <span class="chip">≈ 7 минут</span>
+      <span class="chip">6 шкал: I–VI</span>
+      <span class="chip">макс. 14 баллов на шкалу</span>
+    </div>
+  </div>
+
+  <div class="progressbar" id="pbar">
+    <div class="row">
+      <span>Отвечено: <b id="cnt">0</b> из 42</span>
+      <span id="pct">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <div class="intro" id="introBlock">
+    <b>Как отвечать:</b> выбирайте вариант, который ближе лично вам, даже если ни одна из двух профессий не кажется идеальной. Если сомневаетесь — представьте, что выбирать придётся именно из этих двух. Ответы сохраняются в браузере автоматически, можно закрыть страницу и вернуться.
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="submitBtn" disabled>Показать результат</button>
+    <button class="btn btn-ghost" id="resetBtn">Начать заново</button>
+    <span class="hint" id="hint">Осталось ответить: 42</span>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="foot">
+    Методика: опросник профессиональных предпочтений Дж. Голланда (6 типов: реалистический, интеллектуальный, социальный, конвенциональный, предпринимательский, артистический).<br>
+    Тест — инструмент самоисследования, а не приговор: результат показывает склонности, а не способности.
+  </div>
+</div>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+
+// 42 пары профессий: [вариант А, вариант Б]
+const QUESTIONS = [
+  ["Инженер-технолог", "Инженер-конструктор"],
+  ["Электрорадиотехник", "Врач-терапевт"],
+  ["Оператор станков с ЧПУ", "Кодировщик (обработка информации)"],
+  ["Фотограф", "Коммерсант"],
+  ["Спасатель МЧС", "Дизайнер"],
+  ["Политолог", "Психиатр"],
+  ["Учёный-химик", "Бухгалтер"],
+  ["Философ", "Частный предприниматель"],
+  ["Лингвист", "Модельер"],
+  ["Инспектор службы занятости населения", "Статист"],
+  ["Социальный педагог", "Биржевой маклер"],
+  ["Тренер", "Искусствовед"],
+  ["Нотариус", "Менеджер"],
+  ["Перфораторщик", "Художник"],
+  ["Лидер политической партии или общественного движения", "Писатель"],
+  ["Закройщик", "Метеоролог"],
+  ["Водитель", "Работник пресс-службы"],
+  ["Чертёжник", "Риэлтер"],
+  ["Специалист по ремонту компьютеров и оргтехники", "Секретарь-референт"],
+  ["Микробиолог", "Психолог"],
+  ["Видеооператор", "Режиссёр"],
+  ["Экономист", "Провизор"],
+  ["Зоолог", "Главный инженер"],
+  ["Программист", "Архитектор"],
+  ["Работник инспекции по делам несовершеннолетних", "Коммивояжёр (сетевой маркетинг)"],
+  ["Преподаватель", "Биржевой маклер"],
+  ["Воспитатель", "Декоратор"],
+  ["Реставратор", "Заведующий отделом предприятия"],
+  ["Корректор", "Литератор и кинокритик"],
+  ["Фермер", "Визажист"],
+  ["Парикмахер", "Социолог"],
+  ["Экспедитор", "Редактор"],
+  ["Ветеринар", "Финансовый директор"],
+  ["Автомеханик", "Стилист"],
+  ["Археолог", "Эксперт"],
+  ["Библиограф", "Корреспондент"],
+  ["Эколог", "Актёр"],
+  ["Логопед", "Контролёр"],
+  ["Адвокат", "Директор (глава АО)"],
+  ["Кассир", "Продюсер"],
+  ["Поэт или писатель", "Продавец"],
+  ["Криминалист (баллистик)", "Композитор"]
+];
+
+// Ключ: по 14 кодов на каждую шкалу ("nа" → n+"a", "nв" → n+"b")
+const SCALES = [
+  {
+    id: "I",
+    name: "Реалистический",
+    color: "#2b6cf6",
+    keys: ["1a","2a","3a","4a","5a","16a","17a","19a","21a","28a","31a","32a","33a","34a"],
+    tagline: "Дело, техника, конкретный результат",
+    traits: "Активность, настойчивость, рациональность, практическое мышление, пространственное воображение, развитые двигательные навыки и технические способности. Такой человек охотнее делает, чем говорит, ему важны ясные задачи и осязаемый результат.",
+    env: "Техника и производство, инженерия, транспорт, ремонт и эксплуатация, сельское хозяйство, военное дело. Общение нужно в минимальной мере — для приёма и передачи конкретной информации.",
+    jobs: ["инженер", "технолог", "механик", "автомеханик", "электрик", "водитель", "оператор станков", "агроном", "спасатель"],
+    near: "близкие — II (интеллектуальный) и IV (конвенциональный); противоположный — III (социальный)",
+    work: "Вам подходят задачи, где виден итог: починить, собрать, настроить, рассчитать конструкцию, управлять механизмом. Хуже подходит работа, где почти всё время нужно «переговаривать» и убеждать."
+  },
+  {
+    id: "II",
+    name: "Интеллектуальный",
+    color: "#7c5cff",
+    keys: ["1b","6a","7a","8a","9a","16b","20a","22a","23a","24a","31b","35a","36a","37a"],
+    tagline: "Идеи, анализ, поиск закономерностей",
+    traits: "Любознательность, аналитическое мышление, методичность, независимость и оригинальность суждений, умение точно формулировать мысли, терпение в исследовании. Часто предпочитает работать в одиночку и на свободе в организации собственной работы.",
+    env: "Наука и исследования, аналитика, программирование, образование, лаборатории, работа с большими объёмами информации и сложными моделями.",
+    jobs: ["научный работник", "программист", "аналитик", "биолог", "химик", "метеоролог", "экономист-исследователь", "социолог"],
+    near: "близкие — I (реалистический) и VI (артистический); противоположный — V (предпринимательский)",
+    work: "Вам нужны задачи, где надо разобраться «почему так устроено», построить гипотезу и проверить её. Материальная сторона обычно не на первом месте — важнее интерес к сути."
+  },
+  {
+    id: "III",
+    name: "Социальный",
+    color: "#0f9d6e",
+    keys: ["2b","6b","10a","11a","12a","17b","20b","25a","26a","27a","36b","38a","39a","41b"],
+    tagline: "Люди, помощь, обучение",
+    traits: "Эмпатия, ответственность, терпеливость, умение понять эмоциональное состояние другого, хорошее речевое развитие и живая мимика. Ориентация на взаимодействие, а не на «вещи».",
+    env: "Образование и воспитание, медицина, психология и консультирование, HR, социальная работа, обслуживание и продажи, журналистика о людях.",
+    jobs: ["учитель", "преподаватель", "психолог", "врач", "логопед", "социальный педагог", "тренер", "консультант"],
+    near: "близкие — VI (артистический) и V (предпринимательский); противоположный — I (реалистический)",
+    work: "Вам важна работа с людьми — обучать, помогать, лечить, разговаривать, разбирать ситуации. Тяжёлой будет задача «весь день с данными наедине с цифрами»."
+  },
+  {
+    id: "IV",
+    name: "Конвенциональный",
+    color: "#0e7490",
+    keys: ["3b","7b","10b","13a","14a","18a","19b","22b","29a","32b","35b","38b","40a","42a"],
+    tagline: "Порядок, точность, структура",
+    traits: "Организованность, пунктуальность, исполнительность, педантичность, умение точно следовать правилам и инструкциям, аккуратность в деталях. Работа с знаковыми системами: цифры, документы, коды, базы данных.",
+    env: "Финансы и учёт, делопроизводство и документооборот, нотариат, контроль качества, статистика, работа с данными и регламентами.",
+    jobs: ["бухгалтер", "нотариус", "корректор", "статист", "кассир", "секретарь-референт", "делопроизводитель", "аналитик данных"],
+    near: "близкие — V (предпринимательский) и I (реалистический); противоположный — VI (артистический)",
+    work: "Вам подходит чётко структурированное дело с понятными правилами и проверяемым итогом. Хаос, внезапные смены задач и «свободное творчество без рамок» будут мешать."
+  },
+  {
+    id: "V",
+    name: "Предпринимательский",
+    color: "#e0610c",
+    keys: ["4b","8b","11b","13b","15a","18b","23b","25b","26b","28b","30a","33b","39b","40b"],
+    tagline: "Инициатива, влияние, результат",
+    traits: "Энергичность, инициативность, лидерство, готовность к риску, нацеленность на результат и влияние, лёгкость в контактах и переговорах, умение брать ответственность.",
+    env: "Управление и бизнес, продажи, маркетинг, право и адвокатура, финансы и риэлтерская деятельность, предпринимательство, продюсирование, политика.",
+    jobs: ["предприниматель", "менеджер", "руководитель отдела", "продюсер", "брокер", "адвокат", "финансовый директор", "коммерческий директор"],
+    near: "близкие — IV (конвенциональный) и III (социальный); противоположный — II (интеллектуальный)",
+    work: "Вам нужны задачи с масштабом и ответственностью: организовать людей, договориться, вывести проект на результат. Монотонная исполнительская работа без права решения будет тяготить."
+  },
+  {
+    id: "VI",
+    name: "Артистический",
+    color: "#d6336c",
+    keys: ["5b","9b","12b","14b","15b","21b","24b","27b","29b","30b","34b","37b","41a","42b"],
+    tagline: "Образ, форма, самовыражение",
+    traits: "Креативность, образное мышление, эмоциональность, оригинальность, потребность в самовыражении и эстетической оценке. Жёсткие правила и регламенты переносятся плохо, зато хорошо — работа «по видению».",
+    env: "Дизайн и визуальные искусства, литература и критика, театр, кино и видео, музыка, мода и стиль, архитектура, искусствоведение.",
+    jobs: ["дизайнер", "художник", "писатель", "актёр", "режиссёр", "архитектор", "стилист", "композитор"],
+    near: "близкие — III (социальный) и II (интеллектуальный); противоположный — IV (конвенциональный)",
+    work: "Вам нужна свобода в средствах: придумывать, создавать, оформлять. Работа строго по инструкции с жёстким контролем быстро обесценивается."
+  }
+];
+
+const SCALE_NAMES_SHORT = {I:"I", II:"II", III:"III", IV:"IV", V:"V", VI:"VI"};
+const STORE_KEY = "ptt_answers_v1";
+const TOTAL = QUESTIONS.length;
+
+/* ================= СОСТОЯНИЕ ================= */
+
+let answers = {};   // { "1": "a", "2": "b", ... }
+
+try {
+  const saved = localStorage.getItem(STORE_KEY);
+  if (saved) answers = JSON.parse(saved) || {};
+} catch (e) { answers = {}; }
+
+function save(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(answers)); } catch (e) {}
+}
+
+/* ================= РЕНДЕР ВОПРОСОВ ================= */
+
+const qsBox = document.getElementById("questions");
+
+function renderQuestions(){
+  const frag = document.createDocumentFragment();
+  QUESTIONS.forEach((pair, idx) => {
+    const n = idx + 1;
+    const q = document.createElement("div");
+    q.className = "q";
+    q.dataset.n = n;
+    q.innerHTML =
+      '<div class="qnum">' + n + '</div>' +
+      '<div class="opts">' +
+        '<button type="button" class="opt" data-n="' + n + '" data-k="a">' +
+          '<span class="tag">А</span><span class="txt">' + pair[0] + '</span>' +
+        '</button>' +
+        '<button type="button" class="opt" data-n="' + n + '" data-k="b">' +
+          '<span class="tag">Б</span><span class="txt">' + pair[1] + '</span>' +
+        '</button>' +
+      '</div>';
+    frag.appendChild(q);
+  });
+  qsBox.appendChild(frag);
+}
+renderQuestions();
+
+function paint(){
+  const qNodes = qsBox.querySelectorAll(".q");
+  qNodes.forEach(q => {
+    const n = q.dataset.n;
+    const ans = answers[n];
+    q.classList.toggle("answered", !!ans);
+    q.classList.remove("todo");
+    q.querySelectorAll(".opt").forEach(btn => {
+      btn.classList.toggle("sel", btn.dataset.k === ans);
+    });
+  });
+  const done = Object.keys(answers).length;
+  document.getElementById("cnt").textContent = done;
+  document.getElementById("pct").textContent = Math.round(done / TOTAL * 100) + "%";
+  document.getElementById("fill").style.width = (done / TOTAL * 100) + "%";
+  const left = TOTAL - done;
+  document.getElementById("hint").textContent = left === 0 ? "Все ответы получены — можно смотреть результат" : "Осталось ответить: " + left;
+  document.getElementById("submitBtn").disabled = left !== 0;
+}
+
+qsBox.addEventListener("click", e => {
+  const btn = e.target.closest(".opt");
+  if (!btn) return;
+  answers[btn.dataset.n] = btn.dataset.k;
+  save();
+  paint();
+});
+
+/* ================= ПОДСЧЁТ ================= */
+
+function answerCodes(){
+  const set = new Set();
+  Object.keys(answers).forEach(n => set.add(n + answers[n]));
+  return set;
+}
+
+function computeScores(){
+  const codes = answerCodes();
+  return SCALES.map(s => {
+    const score = s.keys.filter(k => codes.has(k)).length;
+    return { ...s, score };
+  }).sort((a, b) => b.score - a.score || SCALES.indexOf(SCALES.find(x => x.id === a.id)) - SCALES.indexOf(SCALES.find(x => x.id === b.id)));
+}
+
+function levelWord(score){
+  if (score >= 11) return "ярко выражен";
+  if (score >= 7)  return "заметно выражен";
+  if (score >= 4)  return "выражен умеренно";
+  return "выражен слабо";
+}
+
+/* ================= РЕЗУЛЬТАТ ================= */
+
+function showResult(){
+  const scores = computeScores();
+  const max = scores[0].score;
+  const leaders = scores.filter(s => s.score === max);
+  const second = scores.filter(s => s.score < max)[0];
+
+  let leadTitle, leadSub;
+  if (leaders.length === 1) {
+    leadTitle = leaders[0].name + " тип";
+    leadSub = leaders[0].tagline + " · " + levelWord(max);
+  } else {
+    leadTitle = "Смешанный тип: " + leaders.map(l => l.name).join(" + ");
+    leadSub = "Две (и более) шкалы набрали одинаковый максимум — черты типов сочетаются";
+  }
+
+  // описание ведущих типов
+  function descBlock(s, tag){
+    return '' +
+      '<div class="card">' +
+        '<div class="lead-label">' + tag + '</div>' +
+        '<h3 class="lead-title" style="color:' + s.color + '">' + SCALE_NAMES_SHORT[s.id] + ' · ' + s.name + ' тип</h3>' +
+        '<p class="lead-sub">' + s.tagline + '</p>' +
+        '<div class="score-pill">' + s.score + ' из 14 баллов — ' + levelWord(s.score) + '</div>' +
+        '<div class="desc">' +
+          '<div class="k">Черты и способности</div><p>' + s.traits + '</p>' +
+          '<div class="k">Подходящая среда</div><p>' + s.env + '</p>' +
+          '<div class="k">Профессии этого типа</div><div class="jobs">' +
+            s.jobs.map(j => '<span class="job">' + j + '</span>').join("") +
+          '</div>' +
+          '<div class="k">Что это значит для выбора</div><p>' + s.work + '</p>' +
+          '<div class="k">В шестиугольнике Голланда</div><p style="color:#68717f;font-size:13.5px">' + s.near + '</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  let leadCards = leaders.map((s, i) => descBlock(s, leaders.length === 1 ? "Ваш ведущий тип" : "Ведущий тип " + (i + 1))).join("");
+
+  // вторая по выраженности шкала
+  let secondCard = "";
+  if (leaders.length === 1 && second && max - second.score <= 2) {
+    secondCard = '' +
+      '<div class="card">' +
+        '<div class="lead-label">Почти такой же сильный</div>' +
+        '<h3 class="lead-title" style="font-size:20px;color:' + second.color + '">' + SCALE_NAMES_SHORT[second.id] + ' · ' + second.name + ' тип — ' + second.score + ' из 14</h3>' +
+        '<p class="lead-sub">Разница с ведущим типом всего ' + (max - second.score) + ' балл(а), поэтому черты второго типа тоже заметны: ' + second.tagline.toLowerCase() + '.</p>' +
+        '<div class="desc"><div class="k">Профессии этого типа</div><div class="jobs">' +
+          second.jobs.map(j => '<span class="job">' + j + '</span>').join("") +
+        '</div></div>' +
+      '</div>';
+  }
+
+  // график
+  const barsHTML = scores.map(s => {
+    const pct = Math.round(s.score / 14 * 100);
+    const isTop = s.score === max;
+    return '' +
+      '<div class="bar-row' + (isTop ? ' top' : '') + '">' +
+        '<div class="bar-name"><span class="num">' + SCALE_NAMES_SHORT[s.id] + '</span>' + s.name + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" data-pct="' + pct + '" style="background:' + s.color + '"></div></div>' +
+        '<div class="bar-val">' + s.score + '/14</div>' +
+      '</div>';
+  }).join("");
+
+  const tableHTML = scores.map(s =>
+    '<tr><td>' + SCALE_NAMES_SHORT[s.id] + '</td><td>' + s.name + '</td><td><b>' + s.score + '</b></td><td>' + levelWord(s.score) + '</td></tr>'
+  ).join("");
+
+  const resultBox = document.getElementById("result");
+  resultBox.innerHTML =
+    '<div class="card">' +
+      '<div class="lead-label">Результат</div>' +
+      '<h2 class="lead-title" style="color:' + (leaders.length === 1 ? leaders[0].color : "#141a22") + '">' + leadTitle + '</h2>' +
+      '<p class="lead-sub">' + leadSub + '</p>' +
+      '<div class="h2">Профиль по шести шкалам</div>' +
+      '<div class="bars">' + barsHTML + '</div>' +
+      '<div class="note">Читать так: максимальный балл по шкале — 14 (по 14 кодов на каждый тип). <b>11–14</b> — тип ярко выражен, <b>7–10</b> — заметно, <b>4–6</b> — умеренно, <b>0–3</b> — слабо. Если максимальные баллы совпали, возможна комбинация типов: смотрите, какие профессии встречаются в описаниях обоих типов — это и есть зона наибольшего комфорта.</div>' +
+    '</div>' +
+    leadCards +
+    secondCard +
+    '<div class="card">' +
+      '<div class="h2" style="margin-top:0">Сводная таблица</div>' +
+      '<table class="key"><thead><tr><th>Шкала</th><th>Тип</th><th>Баллы</th><th>Выраженность</th></tr></thead><tbody>' + tableHTML + '</tbody></table>' +
+      '<div class="pair" style="margin-top:16px">' +
+        '<div class="mini"><div class="lbl">Как использовать</div>Сравните 2–3 профессии, которые вам нравятся, с описанием ведущего типа: чем больше совпадений по среде и задачам, тем выше шанс, что работа будет в радость.</div>' +
+        '<div class="mini"><div class="lbl">Важное ограничение</div>Тест измеряет <b>интересы</b>, а не способности и не рынок труда. Решение стоит проверять практикой: стажировка, проба, разговор с человеком из профессии.</div>' +
+      '</div>' +
+      '<div class="actions" style="position:static;background:none;padding-bottom:0">' +
+        '<button class="btn btn-primary" id="againBtn">Пройти заново</button>' +
+        '<button class="btn btn-ghost" id="downloadBtn">Скачать результат (.txt)</button>' +
+        '<button class="btn btn-ghost" id="printBtn">Печать / PDF</button>' +
+      '</div>' +
+    '</div>';
+
+  resultBox.style.display = "block";
+  document.getElementById("questions").style.display = "none";
+  document.getElementById("introBlock").style.display = "none";
+  document.getElementById("pbar").style.display = "block";
+  document.querySelector(".actions").style.display = "none";
+
+  // анимация столбиков
+  requestAnimationFrame(() => {
+    resultBox.querySelectorAll(".bar-fill").forEach(el => {
+      el.style.width = el.dataset.pct + "%";
+    });
+  });
+
+  resultBox.scrollIntoView({behavior:"smooth", block:"start"});
+
+  document.getElementById("againBtn").addEventListener("click", resetAll);
+  document.getElementById("downloadBtn").addEventListener("click", () => downloadTxt(scores, leaders, max));
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+}
+
+/* ================= ФАЙЛ С РЕЗУЛЬТАТОМ ================= */
+
+function downloadTxt(scores, leaders, max){
+  const date = new Date().toLocaleDateString("ru-RU");
+  const lines = [];
+  lines.push("ДИАГНОСТИКА ПРОФЕССИОНАЛЬНОГО ТИПА ЛИЧНОСТИ");
+  lines.push("(опросник профессиональных предпочтений Дж. Голланда)");
+  lines.push("Дата прохождения: " + date);
+  lines.push("");
+  lines.push("РЕЗУЛЬТАТ: " + (leaders.length === 1
+    ? leaders[0].name + " тип (" + SCALE_NAMES_SHORT[leaders[0].id] + ") — " + max + " из 14"
+    : "смешанный тип: " + leaders.map(l => l.name + " (" + SCALE_NAMES_SHORT[l.id] + ")").join(" + ") + " — по " + max + " из 14"));
+  lines.push("");
+  lines.push("ПРОФИЛЬ ПО ШКАЛАМ:");
+  scores.forEach(s => {
+    const bar = "█".repeat(s.score) + "·".repeat(14 - s.score);
+    lines.push("  " + SCALE_NAMES_SHORT[s.id].padEnd(4) + s.name.padEnd(20) + String(s.score).padStart(2) + "/14  " + bar);
+  });
+  lines.push("");
+  lines.push("ОТВЕТЫ:");
+  QUESTIONS.forEach((pair, i) => {
+    const n = i + 1;
+    const a = answers[n];
+    const txt = a === "a" ? pair[0] : pair[1];
+    lines.push("  " + String(n).padStart(2) + ". " + (a === "a" ? "А" : "Б") + ") " + txt);
+  });
+  lines.push("");
+  lines.push("ОПИСАНИЕ ВЕДУЩЕГО ТИПА");
+  leaders.forEach(s => {
+    lines.push("");
+    lines.push(s.name + " тип (" + SCALE_NAMES_SHORT[s.id] + ") — " + s.tagline);
+    lines.push("Черты: " + s.traits);
+    lines.push("Среда: " + s.env);
+    lines.push("Профессии: " + s.jobs.join(", "));
+    lines.push("Для выбора: " + s.work);
+    lines.push("В шестиугольнике: " + s.near);
+  });
+  lines.push("");
+  lines.push("Примечание: тест измеряет профессиональные интересы, а не способности.");
+
+  const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "результат-профтест-" + date.replace(/\./g, "-") + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+/* ================= УПРАВЛЕНИЕ ================= */
+
+function resetAll(){
+  answers = {};
+  save();
+  document.getElementById("result").style.display = "none";
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("questions").style.display = "";
+  document.getElementById("introBlock").style.display = "";
+  document.querySelector(".actions").style.display = "";
+  document.getElementById("pbar").style.display = "";
+  paint();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  const left = TOTAL - Object.keys(answers).length;
+  if (left !== 0) {
+    const first = QUESTIONS.findIndex((_, i) => !answers[i + 1]);
+    const node = qsBox.querySelector('.q[data-n="' + (first + 1) + '"]');
+    if (node) {
+      node.classList.add("todo");
+      node.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+    return;
+  }
+  showResult();
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (Object.keys(answers).length && !confirm("Сбросить все ответы и начать заново?")) return;
+  resetAll();
+});
+
+paint();
+</script>
+</body>
+</html>
